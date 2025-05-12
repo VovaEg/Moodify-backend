@@ -13,7 +13,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.*; // Добавляем * для всех аннотаций
+import org.springframework.web.bind.annotation.*;
 
 
 @CrossOrigin(origins = "*", maxAge = 3600)
@@ -36,9 +36,6 @@ public class AdminController {
         this.userService = userService;
     }
 
-    /**
-     * DELETE /api/admin/posts/{postId} : Удалить любой пост (только админ).
-     */
     @DeleteMapping("/posts/{postId}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<MessageResponse> deletePostAsAdmin(@PathVariable Long postId) {
@@ -47,9 +44,6 @@ public class AdminController {
         return ResponseEntity.ok(new MessageResponse("Post with id " + postId + " deleted successfully by admin."));
     }
 
-    /**
-     * DELETE /api/admin/comments/{commentId} : Удалить любой комментарий (только админ).
-     */
     @DeleteMapping("/comments/{commentId}")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<MessageResponse> deleteCommentAsAdmin(@PathVariable Long commentId) {
@@ -58,9 +52,6 @@ public class AdminController {
         return ResponseEntity.ok(new MessageResponse("Comment with id " + commentId + " deleted successfully by admin."));
     }
 
-    /**
-     * GET /api/admin/users : Получить список всех пользователей (только админ).
-     */
     @GetMapping("/users")
     @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<Page<UserResponseDto>> getAllUsers(
@@ -70,20 +61,13 @@ public class AdminController {
         return ResponseEntity.ok(users);
     }
 
-    // --- НОВЫЙ ЭНДПОИНТ: Удаление Пользователя ---
-    /**
-     * DELETE /api/admin/users/{userId} : Удалить пользователя по ID (только админ).
-     * @param userId ID пользователя для удаления.
-     * @return ResponseEntity с сообщением об успехе или ошибку (обработанную RestExceptionHandler).
-     */
     @DeleteMapping("/users/{userId}")
-    @PreAuthorize("hasRole('ADMIN')") // Защита роли
+    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<MessageResponse> deleteUserAsAdmin(@PathVariable Long userId) {
         logger.warn("[ADMIN ACTION] Admin attempting to delete user id: {}", userId);
-        // Вызываем метод сервиса. Ошибки (NotFound и т.д.) будут пойманы RestExceptionHandler
+        // Call the service method. Errors (NotFound, etc.) will be caught by RestExceptionHandler
         userService.deleteUser(userId);
-        // Возвращаем успешный ответ
+        // Return a successfull response
         return ResponseEntity.ok(new MessageResponse("User with id " + userId + " and their associated posts deleted successfully by admin."));
     }
-    // --- КОНЕЦ НОВОГО ЭНДПОИНТА ---
 }

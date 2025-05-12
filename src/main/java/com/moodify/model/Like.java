@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "likes", uniqueConstraints = {
-        // Унікальність пари користувач-пост
+        // Uniqueness of the user-post pair
         @UniqueConstraint(columnNames = {"user_id", "post_id"})
 })
 @Data
@@ -32,11 +32,11 @@ public class Like {
     @EqualsAndHashCode.Exclude
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
-    private User user; // Користувач, який поставив лайк
+    private User user; // The user who liked it
 
     @ToString.Exclude
     @EqualsAndHashCode.Exclude
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "post_id", nullable = false)
-    private Post post; // Пост, якому поставили лайк
+    private Post post; // Liked post
 }

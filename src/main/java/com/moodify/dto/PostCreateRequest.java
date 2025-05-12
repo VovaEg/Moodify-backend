@@ -8,9 +8,8 @@ import lombok.Data;
 public class PostCreateRequest {
 
     @NotBlank(message = "Content cannot be empty")
-    private String content; // Текст настрою
+    private String content;
 
-    // Поки тільки URL пісні
     @Size(max = 2048, message = "Song URL cannot exceed 2048 characters")
     private String songUrl;
 }

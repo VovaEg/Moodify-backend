@@ -12,10 +12,9 @@ import org.springframework.web.bind.annotation.*;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
-@RequestMapping("/api/posts/{postId}/likes") // Шлях до лайків конкретного посту
+@RequestMapping("/api/posts/{postId}/likes")
 public class LikeController {
 
-    private static final Logger logger = LoggerFactory.getLogger(LikeController.class);
     private final LikeService likeService;
 
     @Autowired

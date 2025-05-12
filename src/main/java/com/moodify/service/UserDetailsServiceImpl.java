@@ -30,7 +30,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
         User user = userRepository.findByUsername(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User Not Found with username: " + username));
 
-        // Перетворюємо ролі (Set<Role>) в колекцію GrantedAuthority
+        // Convert roles (Set<Role>) into collection GrantedAuthority
         Collection<? extends GrantedAuthority> authorities = user.getRoles().stream()
                 .map(role -> new SimpleGrantedAuthority(role.getName().name()))
                 .collect(Collectors.toList());

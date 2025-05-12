@@ -6,7 +6,7 @@ import java.util.List;
 @Data
 public class JwtResponse {
     private String token;
-    private String type = "Bearer"; // Тип токену за замовчуванням
+    private String type = "Bearer"; // Default token type
     private Long id;
     private String username;
     private String email;

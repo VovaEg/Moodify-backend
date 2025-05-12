@@ -73,7 +73,7 @@ public class AuthService {
     protected void initializeAdminUser() {
         logger.info("Initializing roles and admin user...");
 
-        // Створюєм/Знаходимо ролі
+        // Create/find roles
         Role userRole = roleRepository.findByName(ERole.ROLE_USER).orElseGet(() -> {
             logger.info("Role USER not found in PostConstruct. Creating...");
             return roleRepository.save(new Role(null, ERole.ROLE_USER));
@@ -82,16 +82,16 @@ public class AuthService {
             logger.info("Role ADMIN not found in PostConstruct. Creating...");
             return roleRepository.save(new Role(null, ERole.ROLE_ADMIN));
         });
-        // Ролі створені або знайдені
+        // Roles created and found
 
-        // Перевіряємо і створюєм адміна
+        // Check and create an admin
         logger.info("Checking for admin user '{}'...", adminUsername);
         if (!userRepository.existsByUsername(adminUsername)) {
             logger.info("Admin user '{}' not found. Creating admin user...", adminUsername);
             User adminUser = new User();
             adminUser.setUsername(adminUsername);
             adminUser.setEmail(adminEmail);
-            adminUser.setPassword(passwordEncoder.encode(adminPassword)); // Хешуємо пароль адміна
+            adminUser.setPassword(passwordEncoder.encode(adminPassword)); // Hash the admin password
             adminUser.setEnabled(true);
 
             Set<Role> roles = new HashSet<>();

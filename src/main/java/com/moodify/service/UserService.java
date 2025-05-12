@@ -3,8 +3,8 @@ package com.moodify.service;
 import com.moodify.dto.UserResponseDto;
 import com.moodify.model.Post;
 import com.moodify.model.User;
-import com.moodify.repository.CommentRepository; // <-- Импорт
-import com.moodify.repository.LikeRepository;    // <-- Импорт
+import com.moodify.repository.CommentRepository;
+import com.moodify.repository.LikeRepository;
 import com.moodify.repository.PostRepository;
 import com.moodify.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -25,21 +25,21 @@ public class UserService {
     private static final Logger logger = LoggerFactory.getLogger(UserService.class);
     private final UserRepository userRepository;
     private final PostRepository postRepository;
-    private final LikeRepository likeRepository;         // <-- Добавлена зависимость
-    private final CommentRepository commentRepository;   // <-- Добавлена зависимость
+    private final LikeRepository likeRepository;
+    private final CommentRepository commentRepository;
 
     @Autowired
     public UserService(UserRepository userRepository,
                        PostRepository postRepository,
-                       LikeRepository likeRepository,       // <-- Внедряем в конструктор
-                       CommentRepository commentRepository) { // <-- Внедряем в конструктор
+                       LikeRepository likeRepository,
+                       CommentRepository commentRepository) {
         this.userRepository = userRepository;
         this.postRepository = postRepository;
-        this.likeRepository = likeRepository;         // <-- Инициализируем
-        this.commentRepository = commentRepository;   // <-- Инициализируем
+        this.likeRepository = likeRepository;
+        this.commentRepository = commentRepository;
     }
 
-    // Маппинг User -> UserResponseDto (без изменений)
+    // Mapping User -> UserResponseDto
     private UserResponseDto mapUserToUserResponseDto(User user) {
         UserResponseDto dto = new UserResponseDto();
         dto.setId(user.getId());
@@ -53,7 +53,6 @@ public class UserService {
         return dto;
     }
 
-    // Метод getAllUsers (без изменений)
     @Transactional(readOnly = true)
     public Page<UserResponseDto> getAllUsers(Pageable pageable) {
         logger.debug("Admin fetching all users, page: {}, size: {}", pageable.getPageNumber(), pageable.getPageSize());
@@ -61,57 +60,38 @@ public class UserService {
         return userPage.map(this::mapUserToUserResponseDto);
     }
 
-    /**
-     * Удаляет пользователя по ID.
-     * Перед удалением пользователя:
-     * 1. Удаляет все его посты (что каскадно удаляет комментарии и лайки к этим постам).
-     * 2. Удаляет все лайки, оставленные этим пользователем под чужими постами.
-     * 3. Удаляет все комментарии, оставленные этим пользователем под чужими постами.
-     * @param userId ID пользователя для удаления.
-     * @throws EntityNotFoundException если пользователь не найден.
-     */
-    @Transactional // Вся операция должна быть в одной транзакции
+    @Transactional
     public void deleteUser(Long userId) {
         logger.warn("[ADMIN ACTION] Attempting to delete user id: {}", userId);
 
-        // (Опционально: Проверка, не пытается ли текущий админ удалить себя.
-        // Потребует внедрения AuthenticationHelper и получения currentAdminId)
-        // if (authenticationHelper.getCurrentUserId().equals(userId)) {
-        //     throw new IllegalArgumentException("Admin cannot delete their own account via this method.");
-        // }
 
-        // 1. Находим пользователя (без изменений)
+        // Find the user
         User userToDelete = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + userId));
 
-        // 2. Находим и удаляем все посты этого пользователя
+        // Find and delete all posts of this user
         List<Post> userPosts = postRepository.findByUserId(userId);
         if (!userPosts.isEmpty()) {
             logger.warn("Deleting {} posts associated with user id: {}", userPosts.size(), userId);
-            // --- ИЗМЕНЕНИЕ ЗДЕСЬ ---
-            // Удаляем посты по одному, чтобы сработали каскадные операции JPA
-            // postRepository.deleteAll(userPosts); // Старый вариант
-            // postRepository.deleteAllInBatch(userPosts); // Тоже может не вызвать каскады JPA
+
+            // Delete posts one by one so that cascade operations of JPA work
             for (Post post : userPosts) {
                 logger.debug("Deleting post with id: {} (belonging to user id: {})", post.getId(), userId);
-                postRepository.delete(post); // Удаляем каждый пост индивидуально
+                postRepository.delete(post); // Delete each post individually
             }
-            // --- КОНЕЦ ИЗМЕНЕНИЯ ---
         } else {
             logger.info("No posts found for user id: {} to delete.", userId);
         }
 
-        // 3. Удаляем лайки, оставленные этим пользователем (под любыми постами)
+        // Delete likes left by this user (under any posts)
         logger.warn("Deleting likes made by user id: {}", userId);
         likeRepository.deleteByUserId(userId); // Вызываем новый метод репозитория
 
-        // 4. Удаляем комментарии, оставленные этим пользователем (под любыми постами)
+        // Delete comments left by this user (under any posts)
         logger.warn("Deleting comments made by user id: {}", userId);
-        commentRepository.deleteByUserId(userId); // Вызываем новый метод репозитория
+        commentRepository.deleteByUserId(userId);
 
-        // 5. Удаляем самого пользователя
-        // Связи в таблице user_roles (роли пользователя) удалятся автоматически
-        // благодаря стандартному поведению JPA для связей ManyToMany при удалении одной из сторон.
+        // Delete the user
         userRepository.delete(userToDelete);
         logger.info("User id: {} and their associated content (posts, likes, comments) deleted successfully by admin.", userId);
     }

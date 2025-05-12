@@ -8,10 +8,9 @@ public class PostResponse {
     private Long id;
     private String content;
     private LocalDateTime createdAt;
-    private AuthorDto author; // Інформація про автора
-    private long likeCount;   // ККількість лайків
-    private long commentCount;// Кількість коментарів
+    private AuthorDto author;
+    private long likeCount;
+    private long commentCount;
 
-    // Інформація про пісню (поки тільки URL)
     private String songUrl;
 }

@@ -25,9 +25,9 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 
-@CrossOrigin(origins = "*", maxAge = 3600) // Налаштування CORS
+@CrossOrigin(origins = "*", maxAge = 3600) // CORS settings
 @RestController
-@RequestMapping("/api/auth") // Базовий шлях для аутентифікації
+@RequestMapping("/api/auth") // Base path for authentication
 public class AuthController {
 
     private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
@@ -35,7 +35,7 @@ public class AuthController {
     private final AuthService authService;
     private final AuthenticationManager authenticationManager;
     private final JwtUtils jwtUtils;
-    private final UserRepository userRepository; // Використовуєм для отримання id/email
+    private final UserRepository userRepository; // Use to get id/email
 
     @Autowired
     public AuthController(AuthService authService,
@@ -58,19 +58,19 @@ public class AuthController {
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
         logger.info("Attempting to authenticate user: {}", loginRequest.getUsername());
 
-        // AuthenticationManager перевіряє логін/пароль.
-        // При помилці викине AuthenticationException -> AuthEntryPointJwt поверне 401.
+        // AuthenticationManager checks the login/password
+        // Throws AuthenticationException on error -> AuthEntryPointJwt will return 401
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
 
         logger.info("Authentication successful for user: {}", loginRequest.getUsername());
 
-        // Встановлюєм аутентифікацію в контекст
+        // Set authentication to the context
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        // Генеруємо токен
+        // Generate token
         String jwt = jwtUtils.generateJwtToken(authentication);
 
-        // Збираєио інформацію для відповіді
+        // Collect information for the answer
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
         User user = userRepository.findByUsername(userDetails.getUsername())
                 .orElseThrow(() -> new RuntimeException("Error: User not found after authentication."));
@@ -79,7 +79,7 @@ public class AuthController {
                 .map(GrantedAuthority::getAuthority)
                 .collect(Collectors.toList());
 
-        // Повертвємо відповідь з токеном и даними користувача
+        // Return the response with the token and user data
         JwtResponse jwtResponse = new JwtResponse(jwt, user.getId(), userDetails.getUsername(), user.getEmail(), roles);
         return ResponseEntity.ok(jwtResponse);
     }

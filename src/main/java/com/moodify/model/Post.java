@@ -30,7 +30,7 @@ public class Post {
     @Column(columnDefinition = "TEXT")
     private String content;
 
-    @Column(name = "song_url", length = 2048) // Посилання на трек
+    @Column(name = "song_url", length = 2048) // Song link
     private String songUrl;
 
     @CreationTimestamp

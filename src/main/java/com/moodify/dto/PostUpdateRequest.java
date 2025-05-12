@@ -10,7 +10,6 @@ public class PostUpdateRequest {
     @NotBlank(message = "Content cannot be empty")
     private String content;
 
-    // URL може бути і пустим
     @Size(max = 2048, message = "Song URL cannot exceed 2048 characters")
     private String songUrl;
 }

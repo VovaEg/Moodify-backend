@@ -10,15 +10,15 @@ public class ErrorResponse {
 
     private LocalDateTime timestamp;
     private int status;
-    private String error; // Назва стаусів
-    private String message; // Повідомлення з винятку
-    private String path; // Шлях запиту, де виникла помилка
+    private String error; // Status name
+    private String message; // Message from the exception
+    private String path; // The query path where the error occured
 
     public ErrorResponse(HttpStatus httpStatus, String message, String path) {
-        this.timestamp = LocalDateTime.now(); // Поточний час помилки
-        this.status = httpStatus.value(); // Числовий код статусу (404, 403, 400, ...)
-        this.error = httpStatus.getReasonPhrase(); // Текстове подання статусу ("Not Found", "Forbidden", ...)
-        this.message = message; // Повідомлення про помилку
-        this.path = path; // URI запиту
+        this.timestamp = LocalDateTime.now(); // Current error time
+        this.status = httpStatus.value(); // Numerical status code (404, 403, 400, ...)
+        this.error = httpStatus.getReasonPhrase(); // Text display of status ("Not Found", "Forbidden", ...)
+        this.message = message; // Error message
+        this.path = path; // Request URI
     }
 }

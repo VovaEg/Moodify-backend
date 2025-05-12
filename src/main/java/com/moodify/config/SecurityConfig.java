@@ -35,7 +35,7 @@ public class SecurityConfig {
 
     private static final Logger logger = LoggerFactory.getLogger(SecurityConfig.class);
 
-    // Впроваджувані залежності
+    // Implemented dependencies
     private final UserDetailsServiceImpl userDetailsService;
     private final AuthEntryPointJwt unauthorizedHandler;
     private final CustomAccessDeniedHandler customAccessDeniedHandler;
@@ -52,7 +52,7 @@ public class SecurityConfig {
         this.jwtUtils = jwtUtils;
     }
 
-    // Біни
+    // Beans
     @Bean
     public AuthTokenFilter authenticationJwtTokenFilter() {
         return new AuthTokenFilter(jwtUtils, userDetailsService);
@@ -71,21 +71,21 @@ public class SecurityConfig {
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        // Вказуєм дозволений origin (адреса вашого фронтенду)
+        // Specify the allowed origin (the adress of your frontend)
         configuration.setAllowedOrigins(List.of("http://localhost:5173"));
-        // Дозволяєм стандартні і кастомні методи
+        // Allow standart and custom methods
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
-        // Дозволяєм важливі заголовки (включаючи Authorization для JWT)
+        // Allow important headers (including Authorization for JWT)
         configuration.setAllowedHeaders(Arrays.asList("Authorization", "Cache-Control", "Content-Type", "X-Requested-With", "accept", "Origin", "Access-Control-Request-Method", "Access-Control-Request-Headers"));
-        // Дозволяєм відправку credentials (наприклад, cookies, якби вони використовувались)
+        // Allow credentials to be sent (for example, cookies, if they were used)
         configuration.setAllowCredentials(true);
-        // Дозволяєм preflight запити на тривалий час
-        configuration.setMaxAge(3600L); // 1 година
+        // Allow preflight requests for a long time
+        configuration.setMaxAge(3600L); // 1 hour
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        // Застосовуємо цю конфігурацію для усіх шляхів у нашому API ("/**")
+        // Apply this configuration to all paths in our API ("/**")
         source.registerCorsConfiguration("/**", configuration);
-        logger.info("CORS configuration applied for origin: {}", configuration.getAllowedOrigins()); // Додамо лог
+        logger.info("CORS configuration applied for origin: {}", configuration.getAllowedOrigins()); // Add log
         return source;
     }
 

@@ -7,14 +7,14 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface UserRepository extends JpaRepository<User, Long> { // <User, Long - тип ID користувача>
+public interface UserRepository extends JpaRepository<User, Long> {
 
-    // Пошук користувача по імені (для логіну і UserDetailsService)
+    // Search for a user by name (for login and UserDetailsService)
     Optional<User> findByUsername(String username);
 
-    // Перевірка існування користувача по імені (для реєстрації)
+    // Checking the existence of a user by name (for registration)
     Boolean existsByUsername(String username);
 
-    // Перевірка існування користувача по email (для реєстрації)
+    // Checking the user's existence by email (for registration)
     Boolean existsByEmail(String email);
 }

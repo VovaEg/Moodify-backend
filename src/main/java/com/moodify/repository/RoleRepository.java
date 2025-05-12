@@ -10,6 +10,5 @@ import java.util.Optional;
 @Repository
 public interface RoleRepository extends JpaRepository<Role, Integer> {
 
-    // Метод для пошука ролі по її імені (Enum)
     Optional<Role> findByName(ERole name);
 }

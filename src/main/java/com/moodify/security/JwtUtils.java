@@ -24,7 +24,7 @@ public class JwtUtils {
     @Value("${moodify.app.jwtExpirationMs}")
     private int jwtExpirationMs;
 
-    // Метод для отримання ключа підпису SecretKey
+    // Method to get the SecretKey signature key
     private SecretKey key() {
         return Keys.hmacShaKeyFor(Decoders.BASE64.decode(jwtSecretString));
     }
@@ -46,14 +46,13 @@ public class JwtUtils {
 
     public String getUserNameFromJwtToken(String token) {
         try {
-            // Отримуєм Claims (корисне навантаження)
-            Claims claims = Jwts.parser()           // Отримуєм будівельник парсера
-                    .verifyWith(key())   // Встановлюєм ключ для перевірки підпису
-                    .build()             // Будуємо парсер
-                    .parseSignedClaims(token) // Парсимо підписаний токен (JWS)
-                    .getPayload();       // Отримуєм корисне навантаження (Claims)
-            return claims.getSubject(); // Повертаєм ім'я користувача з subject
-        } catch (JwtException | IllegalArgumentException e) { // Ловимо помилки парсингу/валідації
+            Claims claims = Jwts.parser()  // Get the parser builder
+                    .verifyWith(key())   // Set the key for signature verification
+                    .build()             // Build the parser
+                    .parseSignedClaims(token) // Parse signed token (JWS)
+                    .getPayload();       // Get the payload (Claims)
+            return claims.getSubject(); // Return the username from subject
+        } catch (JwtException | IllegalArgumentException e) { // Catch parsing/validation errors
             logger.error("Error parsing JWT to get username: {}", e.getMessage());
             throw new RuntimeException("Invalid JWT token provided", e);
         }
@@ -61,11 +60,11 @@ public class JwtUtils {
 
     public boolean validateJwtToken(String authToken) {
         try {
-            Jwts.parser()           // Отримуєм будівельник парсера
-                    .verifyWith(key())   // Встановлюєм ключ для перевірки підпису
-                    .build()             // Будуємо парсер
-                    .parseSignedClaims(authToken); // Намагаємось розпарсити. Якщо успішно - винятку не буде.
-            return true; // Токен валідний
+            Jwts.parser()           // Get the parser builder
+                    .verifyWith(key())   // Set the key for signature verification
+                    .build()             // Build the parser
+                    .parseSignedClaims(authToken); // Try to parse. If successful there will be no exception
+            return true; // The token is valid
         } catch (SignatureException e) {
             logger.error("Invalid JWT signature: {}", e.getMessage());
         } catch (MalformedJwtException e) {
@@ -80,6 +79,6 @@ public class JwtUtils {
             logger.error("General JWT exception during validation: {}", e.getMessage());
         }
 
-        return false; // Якщо було спіймано будь-який виняток - токен неваліден
+        return false; // If any exception was caught, the token is invalid
     }
 }

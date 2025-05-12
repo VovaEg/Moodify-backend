@@ -13,14 +13,13 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import java.util.stream.Collectors;
 
-@ControllerAdvice // Позначає клас як глобальний обробник винятків
+@ControllerAdvice // Marks the class as a global exception handler
 public class RestExceptionHandler {
 
     private static final Logger logger = LoggerFactory.getLogger(RestExceptionHandler.class);
 
-    // Обробнийи для конкретних винятків
-
-    @ExceptionHandler(EntityNotFoundException.class) // Ловит ошибки "ресурс не найден"
+    // Handle for specific exception
+    @ExceptionHandler(EntityNotFoundException.class) // Catch "resource not found" errors
     public ResponseEntity<ErrorResponse> handleEntityNotFound(EntityNotFoundException ex, HttpServletRequest request) {
         logger.warn("Resource not found at path {}: {}", request.getRequestURI(), ex.getMessage());
         ErrorResponse errorResponse = new ErrorResponse(
@@ -56,10 +55,10 @@ public class RestExceptionHandler {
     @ExceptionHandler(IllegalStateException.class)
     public ResponseEntity<ErrorResponse> handleIllegalState(IllegalStateException ex, HttpServletRequest request) {
         logger.warn("Illegal state for path {}: {}", request.getRequestURI(), ex.getMessage());
-        HttpStatus status = HttpStatus.BAD_REQUEST; // За замовчуванням 400
-        // Намагаємось оприділити чи пов'язана помилка з аутентифікацією
+        HttpStatus status = HttpStatus.BAD_REQUEST; // 400
+        // Trying to determine if the error is related to authentication
         if (ex.getMessage() != null && ex.getMessage().toLowerCase().contains("not authenticated")) {
-            status = HttpStatus.UNAUTHORIZED; // Якщо так - 401
+            status = HttpStatus.UNAUTHORIZED; // If yes - 401
         }
         ErrorResponse errorResponse = new ErrorResponse(
                 status,
@@ -85,13 +84,13 @@ public class RestExceptionHandler {
         return new ResponseEntity<>(errorResponse, HttpStatus.BAD_REQUEST);
     }
 
-    // Обробник для усіх інших винятків
+    // Handler for all other exceptions
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGenericException(Exception ex, HttpServletRequest request) {
         logger.error("An unexpected error occurred processing request {}", request.getRequestURI(), ex);
         ErrorResponse errorResponse = new ErrorResponse(
                 HttpStatus.INTERNAL_SERVER_ERROR, // 500
-                "An internal server error occurred. Please contact support.", // Загальне сповіщення для клієнта
+                "An internal server error occurred. Please contact support.", // General notice to the client
                 request.getRequestURI()
         );
         return new ResponseEntity<>(errorResponse, HttpStatus.INTERNAL_SERVER_ERROR);

@@ -8,5 +8,5 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class LikeCountResponse {
-    private long likeCount; // Нова кількість лайків
+    private long likeCount; // New number of likes
 }

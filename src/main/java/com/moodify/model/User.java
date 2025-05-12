@@ -33,13 +33,13 @@ public class User {
     private String username;
 
     @NotBlank
-    @Size(max = 100)
+    @Size(max = 60)
     @Email
     @Column(nullable = false)
     private String email;
 
     @NotBlank
-    @Size(max = 120)
+    @Size(max = 100)
     @Column(nullable = false)
     private String password;
 

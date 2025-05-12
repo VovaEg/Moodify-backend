@@ -21,10 +21,9 @@ import org.springframework.web.bind.annotation.*;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
-@RequestMapping("/api/posts") // Базовий шлях для постів
+@RequestMapping("/api/posts")
 public class PostController {
 
-    private static final Logger logger = LoggerFactory.getLogger(PostController.class);
     private final PostService postService;
 
     @Autowired
@@ -33,7 +32,7 @@ public class PostController {
     }
 
     @PostMapping
-    @PreAuthorize("isAuthenticated()") // Явно вказуємо вимоги аутентифікації
+    @PreAuthorize("isAuthenticated()")
     public ResponseEntity<PostResponse> createPost(@Valid @RequestBody PostCreateRequest postCreateRequest) {
         PostResponse createdPost = postService.createPost(postCreateRequest);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdPost);
@@ -41,7 +40,7 @@ public class PostController {
 
     @GetMapping
     public ResponseEntity<Page<PostResponse>> getAllPosts(
-            @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable)
+            @PageableDefault(size = 12, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable)
     {
         Page<PostResponse> posts = postService.getAllPosts(pageable);
         return ResponseEntity.ok(posts);
@@ -49,7 +48,7 @@ public class PostController {
 
     @GetMapping("/{postId}")
     public ResponseEntity<PostResponse> getPostById(@PathVariable Long postId) {
-        // EntityNotFoundException буде оброблений RestExceptionHandler -> 404
+        // EntityNotFoundException will be processed RestExceptionHandler -> 404
         PostResponse post = postService.getPostById(postId);
         return ResponseEntity.ok(post);
     }

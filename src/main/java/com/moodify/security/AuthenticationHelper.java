@@ -34,16 +34,4 @@ public class AuthenticationHelper {
                     return new UsernameNotFoundException("Current user '" + username + "' not found in database");
                 });
     }
-
-    public Long getCurrentUserId() {
-        return getCurrentUserEntity().getId();
-    }
-
-    public String getCurrentUsername() {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        if (authentication == null || !authentication.isAuthenticated() || "anonymousUser".equals(authentication.getPrincipal().toString())) {
-            throw new IllegalStateException("User is not authenticated, cannot get current username.");
-        }
-        return authentication.getName();
-    }
 }

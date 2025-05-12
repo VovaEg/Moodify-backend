@@ -33,27 +33,27 @@ public class AuthTokenFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain)
             throws ServletException, IOException {
-        String jwt = null;
+        String jwt;
         try {
             jwt = parseJwt(request);
             logger.debug("AuthTokenFilter: Parsed JWT: {}", (jwt != null ? jwt.substring(0, Math.min(jwt.length(), 10)) + "..." : "null"));
 
-            if (jwt != null) { // Якщо токен вилучено
-                boolean isValid = jwtUtils.validateJwtToken(jwt); // Перевіряємо валідність
+            if (jwt != null) { // If the token is removed
+                boolean isValid = jwtUtils.validateJwtToken(jwt); // Check the validity
                 logger.debug("AuthTokenFilter: JWT validation result: {}", isValid);
 
-                if (isValid) { // Якщо токен валіден
+                if (isValid) { // If the token is valid
                     String username = jwtUtils.getUserNameFromJwtToken(jwt);
                     logger.debug("AuthTokenFilter: Username from JWT: {}", username);
 
                     UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-                    // Створюємо об'єкт аутентифікації
+                    // Create an authentication object
                     UsernamePasswordAuthenticationToken authentication =
                             new UsernamePasswordAuthenticationToken(
                                     userDetails, null, userDetails.getAuthorities());
                     authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
 
-                    // Встановлюєм аутентифікацію в контекст
+                    // Set authentication to the context
                     SecurityContextHolder.getContext().setAuthentication(authentication);
                     logger.debug("AuthTokenFilter: Set Authentication in SecurityContext for user '{}'", username);
                 } else {
@@ -66,19 +66,16 @@ public class AuthTokenFilter extends OncePerRequestFilter {
             logger.error("AuthTokenFilter: Cannot set user authentication: {}", e.getMessage(), e);
         }
 
-        // Передаємо запит/відповідь далі по цепочці фільтрів
+        // Pass the request/response further along the filter chain
         filterChain.doFilter(request, response);
     }
 
-    /**
-     * Извлекает токен из заголовка "Authorization: Bearer <token>".
-     */
     private String parseJwt(HttpServletRequest request) {
         String headerAuth = request.getHeader("Authorization");
 
         if (StringUtils.hasText(headerAuth) && headerAuth.startsWith("Bearer ")) {
-            return headerAuth.substring(7); // Повертаємо частину після "Bearer "
+            return headerAuth.substring(7); // Return the part after "Bearer "
         }
-        return null; // Повертаємо null, якщо заголовок не знайдено або невірний
+        return null; // Return null if the header is not found or is invalid
     }
 }

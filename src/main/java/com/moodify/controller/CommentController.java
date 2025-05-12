@@ -19,10 +19,9 @@ import org.springframework.web.bind.annotation.*;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
-@RequestMapping("/api") // Загальний префікс API
+@RequestMapping("/api")
 public class CommentController {
 
-    private static final Logger logger = LoggerFactory.getLogger(CommentController.class);
     private final CommentService commentService;
 
     @Autowired
@@ -34,7 +33,7 @@ public class CommentController {
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<CommentResponse> createComment(@PathVariable Long postId,
                                                          @Valid @RequestBody CommentCreateRequest commentDto) {
-        // EntityNotFoundException -> 404 (якщо пост не знайдено)
+        // EntityNotFoundException -> 404 (if post not found)
         CommentResponse createdComment = commentService.createComment(postId, commentDto);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdComment);
     }

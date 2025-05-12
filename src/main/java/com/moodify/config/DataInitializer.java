@@ -23,10 +23,10 @@ public class DataInitializer implements CommandLineRunner {
 
     @Override
     @Transactional
-    public void run(String... args) throws Exception {
+    public void run(String... args) {
         logger.info("Checking initial roles...");
         createRoleIfNotFound(ERole.ROLE_USER);
-        createRoleIfNotFound(ERole.ROLE_ADMIN); // Повертаєм створення ROLE_ADMIN
+        createRoleIfNotFound(ERole.ROLE_ADMIN); // Return creation ROLE_ADMIN
         logger.info("Initial roles check complete.");
     }
 
