@@ -80,16 +80,23 @@ public class UserService {
         //     throw new IllegalArgumentException("Admin cannot delete their own account via this method.");
         // }
 
-        // 1. Находим пользователя
+        // 1. Находим пользователя (без изменений)
         User userToDelete = userRepository.findById(userId)
                 .orElseThrow(() -> new EntityNotFoundException("User not found with id: " + userId));
 
-        // 2. Удаляем все посты пользователя
-        // (Комментарии и лайки к этим постам удалятся каскадно благодаря настройке в Post.java)
+        // 2. Находим и удаляем все посты этого пользователя
         List<Post> userPosts = postRepository.findByUserId(userId);
         if (!userPosts.isEmpty()) {
             logger.warn("Deleting {} posts associated with user id: {}", userPosts.size(), userId);
-            postRepository.deleteAllInBatch(userPosts); // Используем deleteAllInBatch для эффективности
+            // --- ИЗМЕНЕНИЕ ЗДЕСЬ ---
+            // Удаляем посты по одному, чтобы сработали каскадные операции JPA
+            // postRepository.deleteAll(userPosts); // Старый вариант
+            // postRepository.deleteAllInBatch(userPosts); // Тоже может не вызвать каскады JPA
+            for (Post post : userPosts) {
+                logger.debug("Deleting post with id: {} (belonging to user id: {})", post.getId(), userId);
+                postRepository.delete(post); // Удаляем каждый пост индивидуально
+            }
+            // --- КОНЕЦ ИЗМЕНЕНИЯ ---
         } else {
             logger.info("No posts found for user id: {} to delete.", userId);
         }
