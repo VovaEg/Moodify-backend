@@ -1,9 +1,15 @@
 package com.moodify.dto;
 
-import lombok.Data;
+import lombok.*;
+
 import java.util.List;
 
-@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Getter
+@Setter
+@EqualsAndHashCode
+@ToString
 public class JwtResponse {
     private String token;
     private String type = "Bearer"; // Default token type

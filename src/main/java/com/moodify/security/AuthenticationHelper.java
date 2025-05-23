@@ -2,18 +2,17 @@ package com.moodify.security;
 
 import com.moodify.model.User;
 import com.moodify.repository.UserRepository;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Component;
 
+@Slf4j
 @Component
 public class AuthenticationHelper {
 
-    private static final Logger logger = LoggerFactory.getLogger(AuthenticationHelper.class);
     private final UserRepository userRepository;
 
     @Autowired
@@ -24,13 +23,13 @@ public class AuthenticationHelper {
     public User getCurrentUserEntity() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication == null || !authentication.isAuthenticated() || "anonymousUser".equals(authentication.getPrincipal().toString())) {
-            logger.warn("Attempted to get current user entity, but user is not authenticated.");
+            log.warn("Attempted to get current user entity, but user is not authenticated.");
             throw new IllegalStateException("User is not authenticated, cannot get current user entity.");
         }
         String username = authentication.getName();
         return userRepository.findByUsername(username)
                 .orElseThrow(() -> {
-                    logger.error("Authenticated user '{}' not found in database.", username);
+                    log.error("Authenticated user '{}' not found in database.", username);
                     return new UsernameNotFoundException("Current user '" + username + "' not found in database");
                 });
     }

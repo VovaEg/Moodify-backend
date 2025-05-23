@@ -1,12 +1,11 @@
 package com.moodify.config;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import java.util.Arrays;
 import java.util.List;
+import lombok.extern.slf4j.Slf4j;
 import com.moodify.security.AuthEntryPointJwt;
 import com.moodify.security.AuthTokenFilter;
 import com.moodify.security.CustomAccessDeniedHandler;
@@ -28,12 +27,11 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
+@Slf4j
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
-
-    private static final Logger logger = LoggerFactory.getLogger(SecurityConfig.class);
 
     // Implemented dependencies
     private final UserDetailsServiceImpl userDetailsService;
@@ -85,7 +83,7 @@ public class SecurityConfig {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         // Apply this configuration to all paths in our API ("/**")
         source.registerCorsConfiguration("/**", configuration);
-        logger.info("CORS configuration applied for origin: {}", configuration.getAllowedOrigins()); // Add log
+        log.info("CORS configuration applied for origin: {}", configuration.getAllowedOrigins()); // Add log
         return source;
     }
 

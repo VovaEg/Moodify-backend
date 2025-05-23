@@ -1,9 +1,14 @@
 package com.moodify.dto;
 
 import jakarta.validation.constraints.*;
-import lombok.Data;
+import lombok.*;
 
-@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Getter
+@Setter
+@EqualsAndHashCode
+@ToString
 public class RegisterRequest {
 
     @NotBlank(message = "Username cannot be blank")

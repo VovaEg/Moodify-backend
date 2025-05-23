@@ -4,9 +4,8 @@ import com.moodify.dto.CommentCreateRequest;
 import com.moodify.dto.CommentResponse;
 import com.moodify.dto.MessageResponse;
 import com.moodify.service.CommentService;
+import static com.moodify.config.EndpointConstants.*;
 import jakarta.validation.Valid;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -19,7 +18,7 @@ import org.springframework.web.bind.annotation.*;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
-@RequestMapping("/api")
+@RequestMapping(API_BASE)
 public class CommentController {
 
     private final CommentService commentService;
@@ -29,7 +28,7 @@ public class CommentController {
         this.commentService = commentService;
     }
 
-    @PostMapping("/posts/{postId}/comments")
+    @PostMapping(COMMENTS_FOR_POST_ENDPOINT)
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<CommentResponse> createComment(@PathVariable Long postId,
                                                          @Valid @RequestBody CommentCreateRequest commentDto) {
@@ -38,7 +37,7 @@ public class CommentController {
         return ResponseEntity.status(HttpStatus.CREATED).body(createdComment);
     }
 
-    @GetMapping("/posts/{postId}/comments")
+    @GetMapping(COMMENTS_FOR_POST_ENDPOINT)
     public ResponseEntity<Page<CommentResponse>> getCommentsByPostId(
             @PathVariable Long postId,
             @PageableDefault(size = 10, sort = "createdAt", direction = Sort.Direction.ASC) Pageable pageable)
@@ -48,7 +47,7 @@ public class CommentController {
         return ResponseEntity.ok(comments);
     }
 
-    @DeleteMapping("/comments/{commentId}")
+    @DeleteMapping(COMMENT_BY_ID_OPERATIONS_ENDPOINT)
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<MessageResponse> deleteComment(@PathVariable Long commentId) {
         // EntityNotFoundException -> 404

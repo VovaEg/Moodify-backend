@@ -2,9 +2,14 @@ package com.moodify.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;
-import lombok.Data;
+import lombok.*;
 
-@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Getter
+@Setter
+@EqualsAndHashCode
+@ToString
 public class PostUpdateRequest {
 
     @NotBlank(message = "Content cannot be empty")

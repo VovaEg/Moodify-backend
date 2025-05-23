@@ -1,9 +1,15 @@
 package com.moodify.dto;
 
-import lombok.Data;
+import lombok.*;
+
 import java.time.LocalDateTime;
 
-@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Getter
+@Setter
+@EqualsAndHashCode
+@ToString
 public class PostResponse {
     private Long id;
     private String content;

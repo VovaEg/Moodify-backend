@@ -1,23 +1,20 @@
 package com.moodify.model;
 
 import jakarta.persistence.*;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
-import lombok.AllArgsConstructor;
-import lombok.ToString;
+import lombok.*;
 import org.hibernate.annotations.CreationTimestamp;
-
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "likes", uniqueConstraints = {
         // Uniqueness of the user-post pair
-        @UniqueConstraint(columnNames = {"user_id", "post_id"})
-})
-@Data
+        @UniqueConstraint(columnNames = {"user_id", "post_id"})})
 @NoArgsConstructor
 @AllArgsConstructor
+@Getter
+@Setter
+@EqualsAndHashCode
+@ToString
 public class Like {
 
     @Id

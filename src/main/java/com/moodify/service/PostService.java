@@ -12,8 +12,7 @@ import com.moodify.repository.LikeRepository;
 import com.moodify.repository.PostRepository;
 import com.moodify.security.AuthenticationHelper;
 import jakarta.persistence.EntityNotFoundException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -21,10 +20,9 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 public class PostService {
-
-    private static final Logger logger = LoggerFactory.getLogger(PostService.class);
 
     private final PostRepository postRepository;
     private final LikeRepository likeRepository;
@@ -62,26 +60,26 @@ public class PostService {
     @Transactional
     public PostResponse createPost(PostCreateRequest postCreateRequest) {
         User currentUser = authenticationHelper.getCurrentUserEntity();
-        logger.info("User '{}' is creating a post", currentUser.getUsername());
+        log.info("User '{}' is creating a post", currentUser.getUsername());
         Post post = new Post();
         post.setUser(currentUser);
         post.setContent(postCreateRequest.getContent());
         post.setSongUrl(postCreateRequest.getSongUrl());
         Post savedPost = postRepository.save(post);
-        logger.info("Post created with id: {}", savedPost.getId());
+        log.info("Post created with id: {}", savedPost.getId());
         return mapPostToPostResponse(savedPost);
     }
 
     @Transactional(readOnly = true)
     public Page<PostResponse> getAllPosts(Pageable pageable) {
-        logger.debug("Fetching all posts, page: {}, size: {}", pageable.getPageNumber(), pageable.getPageSize());
+        log.debug("Fetching all posts, page: {}, size: {}", pageable.getPageNumber(), pageable.getPageSize());
         Page<Post> postPage = postRepository.findAllWithUserOrderByCreatedAtDesc(pageable);
         return postPage.map(this::mapPostToPostResponse);
     }
 
     @Transactional(readOnly = true)
     public PostResponse getPostById(Long postId) {
-        logger.debug("Fetching post by id: {}", postId);
+        log.debug("Fetching post by id: {}", postId);
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new EntityNotFoundException("Post not found with id: " + postId));
         return mapPostToPostResponse(post);
@@ -90,24 +88,24 @@ public class PostService {
     @Transactional
     public PostResponse updatePost(Long postId, PostUpdateRequest updateRequest) {
         User currentUser = authenticationHelper.getCurrentUserEntity();
-        logger.info("User '{}' attempting to update post id: {}", currentUser.getUsername(), postId);
+        log.info("User '{}' attempting to update post id: {}", currentUser.getUsername(), postId);
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new EntityNotFoundException("Post not found with id: " + postId));
         if (!post.getUser().getId().equals(currentUser.getId())) {
-            logger.error("Access Denied: User '{}' is not the author of post id: {}", currentUser.getUsername(), postId);
+            log.error("Access Denied: User '{}' is not the author of post id: {}", currentUser.getUsername(), postId);
             throw new AccessDeniedException("You are not authorized to update this post");
         }
         post.setContent(updateRequest.getContent());
         post.setSongUrl(updateRequest.getSongUrl());
         Post updatedPost = postRepository.save(post);
-        logger.info("Post id: {} updated successfully by user '{}'", postId, currentUser.getUsername());
+        log.info("Post id: {} updated successfully by user '{}'", postId, currentUser.getUsername());
         return mapPostToPostResponse(updatedPost);
     }
 
     @Transactional
     public void deletePost(Long postId) {
         User currentUser = authenticationHelper.getCurrentUserEntity();
-        logger.warn("User '{}' attempting to delete post id: {}", currentUser.getUsername(), postId);
+        log.warn("User '{}' attempting to delete post id: {}", currentUser.getUsername(), postId);
 
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new EntityNotFoundException("Post not found with id: " + postId));
@@ -117,12 +115,12 @@ public class PostService {
         boolean isAuthor = post.getUser().getId().equals(currentUser.getId());
 
         if (!isAuthor && !isAdmin) {
-            logger.error("Access Denied: User '{}' is not authorized to delete post id {} (author id: {})",
+            log.error("Access Denied: User '{}' is not authorized to delete post id {} (author id: {})",
                     currentUser.getUsername(), postId, post.getUser().getId());
             throw new AccessDeniedException("You are not authorized to delete this post");
         }
 
         postRepository.delete(post);
-        logger.info("Post id: {} deleted successfully by user '{}' (is admin: {})", postId, currentUser.getUsername(), isAdmin);
+        log.info("Post id: {} deleted successfully by user '{}' (is admin: {})", postId, currentUser.getUsername(), isAdmin);
     }
 }

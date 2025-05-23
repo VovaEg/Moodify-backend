@@ -5,8 +5,7 @@ import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -14,15 +13,13 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.util.StringUtils;
 import org.springframework.web.filter.OncePerRequestFilter;
-
 import java.io.IOException;
 
+@Slf4j
 public class AuthTokenFilter extends OncePerRequestFilter {
 
     private final JwtUtils jwtUtils;
     private final UserDetailsServiceImpl userDetailsService;
-
-    private static final Logger logger = LoggerFactory.getLogger(AuthTokenFilter.class);
 
     @Autowired
     public AuthTokenFilter(JwtUtils jwtUtils, UserDetailsServiceImpl userDetailsService) {
@@ -36,15 +33,15 @@ public class AuthTokenFilter extends OncePerRequestFilter {
         String jwt;
         try {
             jwt = parseJwt(request);
-            logger.debug("AuthTokenFilter: Parsed JWT: {}", (jwt != null ? jwt.substring(0, Math.min(jwt.length(), 10)) + "..." : "null"));
+            log.debug("AuthTokenFilter: Parsed JWT: {}", (jwt != null ? jwt.substring(0, Math.min(jwt.length(), 10)) + "..." : "null"));
 
             if (jwt != null) { // If the token is removed
                 boolean isValid = jwtUtils.validateJwtToken(jwt); // Check the validity
-                logger.debug("AuthTokenFilter: JWT validation result: {}", isValid);
+                log.debug("AuthTokenFilter: JWT validation result: {}", isValid);
 
                 if (isValid) { // If the token is valid
                     String username = jwtUtils.getUserNameFromJwtToken(jwt);
-                    logger.debug("AuthTokenFilter: Username from JWT: {}", username);
+                    log.debug("AuthTokenFilter: Username from JWT: {}", username);
 
                     UserDetails userDetails = userDetailsService.loadUserByUsername(username);
                     // Create an authentication object
@@ -55,15 +52,15 @@ public class AuthTokenFilter extends OncePerRequestFilter {
 
                     // Set authentication to the context
                     SecurityContextHolder.getContext().setAuthentication(authentication);
-                    logger.debug("AuthTokenFilter: Set Authentication in SecurityContext for user '{}'", username);
+                    log.debug("AuthTokenFilter: Set Authentication in SecurityContext for user '{}'", username);
                 } else {
-                    logger.warn("AuthTokenFilter: Invalid JWT token received.");
+                    log.warn("AuthTokenFilter: Invalid JWT token received.");
                 }
             } else {
-                logger.debug("AuthTokenFilter: No JWT found in Authorization header.");
+                log.debug("AuthTokenFilter: No JWT found in Authorization header.");
             }
         } catch (Exception e) {
-            logger.error("AuthTokenFilter: Cannot set user authentication: {}", e.getMessage(), e);
+            log.error("AuthTokenFilter: Cannot set user authentication: {}", e.getMessage(), e);
         }
 
         // Pass the request/response further along the filter chain

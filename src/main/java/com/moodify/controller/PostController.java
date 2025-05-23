@@ -5,9 +5,8 @@ import com.moodify.dto.PostCreateRequest;
 import com.moodify.dto.PostResponse;
 import com.moodify.dto.PostUpdateRequest;
 import com.moodify.service.PostService;
+import static com.moodify.config.EndpointConstants.*;
 import jakarta.validation.Valid;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -21,7 +20,7 @@ import org.springframework.web.bind.annotation.*;
 
 @CrossOrigin(origins = "*", maxAge = 3600)
 @RestController
-@RequestMapping("/api/posts")
+@RequestMapping(POST_CONTROLLER_BASE_PATH)
 public class PostController {
 
     private final PostService postService;
@@ -46,14 +45,14 @@ public class PostController {
         return ResponseEntity.ok(posts);
     }
 
-    @GetMapping("/{postId}")
+    @GetMapping(POST_BY_ID_ENDPOINT)
     public ResponseEntity<PostResponse> getPostById(@PathVariable Long postId) {
         // EntityNotFoundException will be processed RestExceptionHandler -> 404
         PostResponse post = postService.getPostById(postId);
         return ResponseEntity.ok(post);
     }
 
-    @PutMapping("/{postId}")
+    @PutMapping(POST_BY_ID_ENDPOINT)
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<PostResponse> updatePost(@PathVariable Long postId,
                                                    @Valid @RequestBody PostUpdateRequest postUpdateRequest) {
@@ -64,7 +63,7 @@ public class PostController {
         return ResponseEntity.ok(updatedPost);
     }
 
-    @DeleteMapping("/{postId}")
+    @DeleteMapping(POST_BY_ID_ENDPOINT)
     @PreAuthorize("isAuthenticated()")
     public ResponseEntity<MessageResponse> deletePost(@PathVariable Long postId) {
         // EntityNotFoundException -> 404

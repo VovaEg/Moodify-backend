@@ -8,16 +8,14 @@ import com.moodify.repository.LikeRepository;
 import com.moodify.repository.PostRepository;
 import com.moodify.security.AuthenticationHelper;
 import jakarta.persistence.EntityNotFoundException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+@Slf4j
 @Service
 public class LikeService {
-
-    private static final Logger logger = LoggerFactory.getLogger(LikeService.class);
 
     private final LikeRepository likeRepository;
     private final PostRepository postRepository;
@@ -36,7 +34,7 @@ public class LikeService {
     public LikeCountResponse likePost(Long postId) {
         User currentUser = authenticationHelper.getCurrentUserEntity();
         Long currentUserId = currentUser.getId();
-        logger.info("User id:{} ('{}') attempting to like post id: {}", currentUserId, currentUser.getUsername(), postId);
+        log.info("User id:{} ('{}') attempting to like post id: {}", currentUserId, currentUser.getUsername(), postId);
 
         Post post = postRepository.findById(postId)
                 .orElseThrow(() -> new EntityNotFoundException("Cannot like post. Post not found with id: " + postId));
@@ -48,9 +46,9 @@ public class LikeService {
             like.setUser(currentUser);
             like.setPost(post);
             likeRepository.save(like);
-            logger.info("Like successfully added by user id:{} ('{}') for post id: {}", currentUserId, currentUser.getUsername(), postId);
+            log.info("Like successfully added by user id:{} ('{}') for post id: {}", currentUserId, currentUser.getUsername(), postId);
         } else {
-            logger.warn("User id:{} ('{}') already liked post id: {}. No action taken.", currentUserId, currentUser.getUsername(), postId);
+            log.warn("User id:{} ('{}') already liked post id: {}. No action taken.", currentUserId, currentUser.getUsername(), postId);
         }
 
         long likeCount = likeRepository.countByPostId(postId);
@@ -61,7 +59,7 @@ public class LikeService {
     public LikeCountResponse unlikePost(Long postId) {
         User currentUser = authenticationHelper.getCurrentUserEntity();
         Long currentUserId = currentUser.getId();
-        logger.info("User id:{} ('{}') attempting to unlike post id: {}", currentUserId, currentUser.getUsername(), postId);
+        log.info("User id:{} ('{}') attempting to unlike post id: {}", currentUserId, currentUser.getUsername(), postId);
 
         if (!postRepository.existsById(postId)) {
             throw new EntityNotFoundException("Cannot unlike post. Post not found with id: " + postId);
@@ -70,9 +68,9 @@ public class LikeService {
         boolean existed = likeRepository.existsByUserIdAndPostId(currentUserId, postId);
         if (existed) {
             likeRepository.deleteByUserIdAndPostId(currentUserId, postId);
-            logger.info("Like successfully removed by user id:{} ('{}') for post id: {}", currentUserId, currentUser.getUsername(), postId);
+            log.info("Like successfully removed by user id:{} ('{}') for post id: {}", currentUserId, currentUser.getUsername(), postId);
         } else {
-            logger.warn("User id:{} ('{}') tried to unlike post id: {}, but no like was found.", currentUserId, currentUser.getUsername(), postId);
+            log.warn("User id:{} ('{}') tried to unlike post id: {}, but no like was found.", currentUserId, currentUser.getUsername(), postId);
         }
 
         long likeCount = likeRepository.countByPostId(postId);

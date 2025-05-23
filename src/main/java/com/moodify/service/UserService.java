@@ -8,21 +8,19 @@ import com.moodify.repository.LikeRepository;
 import com.moodify.repository.PostRepository;
 import com.moodify.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 public class UserService {
 
-    private static final Logger logger = LoggerFactory.getLogger(UserService.class);
     private final UserRepository userRepository;
     private final PostRepository postRepository;
     private final LikeRepository likeRepository;
@@ -55,14 +53,14 @@ public class UserService {
 
     @Transactional(readOnly = true)
     public Page<UserResponseDto> getAllUsers(Pageable pageable) {
-        logger.debug("Admin fetching all users, page: {}, size: {}", pageable.getPageNumber(), pageable.getPageSize());
+        log.debug("Admin fetching all users, page: {}, size: {}", pageable.getPageNumber(), pageable.getPageSize());
         Page<User> userPage = userRepository.findAll(pageable);
         return userPage.map(this::mapUserToUserResponseDto);
     }
 
     @Transactional
     public void deleteUser(Long userId) {
-        logger.warn("[ADMIN ACTION] Attempting to delete user id: {}", userId);
+        log.warn("[ADMIN ACTION] Attempting to delete user id: {}", userId);
 
 
         // Find the user
@@ -72,27 +70,27 @@ public class UserService {
         // Find and delete all posts of this user
         List<Post> userPosts = postRepository.findByUserId(userId);
         if (!userPosts.isEmpty()) {
-            logger.warn("Deleting {} posts associated with user id: {}", userPosts.size(), userId);
+            log.warn("Deleting {} posts associated with user id: {}", userPosts.size(), userId);
 
             // Delete posts one by one so that cascade operations of JPA work
             for (Post post : userPosts) {
-                logger.debug("Deleting post with id: {} (belonging to user id: {})", post.getId(), userId);
+                log.debug("Deleting post with id: {} (belonging to user id: {})", post.getId(), userId);
                 postRepository.delete(post); // Delete each post individually
             }
         } else {
-            logger.info("No posts found for user id: {} to delete.", userId);
+            log.info("No posts found for user id: {} to delete.", userId);
         }
 
         // Delete likes left by this user (under any posts)
-        logger.warn("Deleting likes made by user id: {}", userId);
+        log.warn("Deleting likes made by user id: {}", userId);
         likeRepository.deleteByUserId(userId); // Вызываем новый метод репозитория
 
         // Delete comments left by this user (under any posts)
-        logger.warn("Deleting comments made by user id: {}", userId);
+        log.warn("Deleting comments made by user id: {}", userId);
         commentRepository.deleteByUserId(userId);
 
         // Delete the user
         userRepository.delete(userToDelete);
-        logger.info("User id: {} and their associated content (posts, likes, comments) deleted successfully by admin.", userId);
+        log.info("User id: {} and their associated content (posts, likes, comments) deleted successfully by admin.", userId);
     }
 }

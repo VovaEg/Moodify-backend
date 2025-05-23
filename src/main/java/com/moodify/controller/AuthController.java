@@ -5,12 +5,12 @@ import com.moodify.dto.LoginRequest;
 import com.moodify.dto.RegisterRequest;
 import com.moodify.dto.MessageResponse;
 import com.moodify.model.User;
+import static com.moodify.config.EndpointConstants.*;
 import com.moodify.repository.UserRepository;
 import com.moodify.security.JwtUtils;
 import com.moodify.service.AuthService;
 import jakarta.validation.Valid;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -20,17 +20,14 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 import java.util.stream.Collectors;
 
-
+@Slf4j
 @CrossOrigin(origins = "*", maxAge = 3600) // CORS settings
 @RestController
-@RequestMapping("/api/auth") // Base path for authentication
+@RequestMapping(AUTH_CONTROLLER_BASE_PATH) // Base path for authentication
 public class AuthController {
-
-    private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
 
     private final AuthService authService;
     private final AuthenticationManager authenticationManager;
@@ -48,22 +45,22 @@ public class AuthController {
         this.userRepository = userRepository;
     }
 
-    @PostMapping("/register")
+    @PostMapping(AUTH_REGISTER_ENDPOINT)
     public ResponseEntity<?> registerUser(@Valid @RequestBody RegisterRequest registerRequest) {
         authService.registerUser(registerRequest);
         return ResponseEntity.ok(new MessageResponse("User registered successfully!"));
     }
 
-    @PostMapping("/login")
+    @PostMapping(AUTH_LOGIN_ENDPOINT)
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginRequest loginRequest) {
-        logger.info("Attempting to authenticate user: {}", loginRequest.getUsername());
+        log.info("Attempting to authenticate user: {}", loginRequest.getUsername());
 
         // AuthenticationManager checks the login/password
         // Throws AuthenticationException on error -> AuthEntryPointJwt will return 401
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
 
-        logger.info("Authentication successful for user: {}", loginRequest.getUsername());
+        log.info("Authentication successful for user: {}", loginRequest.getUsername());
 
         // Set authentication to the context
         SecurityContextHolder.getContext().setAuthentication(authentication);

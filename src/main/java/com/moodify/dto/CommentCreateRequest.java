@@ -1,9 +1,14 @@
 package com.moodify.dto;
 
 import jakarta.validation.constraints.NotBlank;
-import lombok.Data;
+import lombok.*;
 
-@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Getter
+@Setter
+@EqualsAndHashCode
+@ToString
 public class CommentCreateRequest {
 
     @NotBlank(message = "Comment content cannot be blank")

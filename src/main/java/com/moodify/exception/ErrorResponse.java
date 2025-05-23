@@ -1,11 +1,15 @@
 package com.moodify.exception;
 
-import lombok.Data;
+import lombok.*;
 import org.springframework.http.HttpStatus;
-
 import java.time.LocalDateTime;
 
-@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Getter
+@Setter
+@EqualsAndHashCode
+@ToString
 public class ErrorResponse {
 
     private LocalDateTime timestamp;

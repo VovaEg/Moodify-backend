@@ -1,10 +1,15 @@
 package com.moodify.dto;
 
-import lombok.Data;
+import lombok.*;
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Getter
+@Setter
+@EqualsAndHashCode
+@ToString
 public class UserResponseDto {
     private Long id;
     private String username;
