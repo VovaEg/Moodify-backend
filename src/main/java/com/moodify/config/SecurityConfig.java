@@ -3,6 +3,8 @@ package com.moodify.config;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
@@ -69,21 +71,33 @@ public class SecurityConfig {
     @Bean
     CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
-        // Specify the allowed origin (the adress of your frontend)
-        configuration.setAllowedOrigins(List.of("http://localhost:5173"));
-        // Allow standart and custom methods
+
+        String deployedFrontendUrl = System.getenv("FRONTEND_URL");
+        log.info("Attempting to configure CORS. FRONTEND_URL from environment: {}", deployedFrontendUrl);
+
+        List<String> allowedOrigins = new ArrayList<>();
+        allowedOrigins.add("http://localhost:5173");
+
+        if (deployedFrontendUrl != null && !deployedFrontendUrl.isBlank()) {
+            allowedOrigins.add(deployedFrontendUrl);
+        } else {
+            log.warn("FRONTEND_URL environment variable is not set or is empty. " +
+                    "CORS might not allow requests from the deployed frontend if its URL is not in the allowed list.");
+        }
+
+        configuration.setAllowedOrigins(allowedOrigins);
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
-        // Allow important headers (including Authorization for JWT)
-        configuration.setAllowedHeaders(Arrays.asList("Authorization", "Cache-Control", "Content-Type", "X-Requested-With", "accept", "Origin", "Access-Control-Request-Method", "Access-Control-Request-Headers"));
-        // Allow credentials to be sent (for example, cookies, if they were used)
+        configuration.setAllowedHeaders(Arrays.asList(
+                "Authorization", "Cache-Control", "Content-Type", "X-Requested-With",
+                "accept", "Origin", "Access-Control-Request-Method",
+                "Access-Control-Request-Headers"
+        ));
         configuration.setAllowCredentials(true);
-        // Allow preflight requests for a long time
         configuration.setMaxAge(3600L); // 1 hour
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
-        // Apply this configuration to all paths in our API ("/**")
         source.registerCorsConfiguration("/**", configuration);
-        log.info("CORS configuration applied for origin: {}", configuration.getAllowedOrigins()); // Add log
+        log.info("CORS configuration finalized. Allowed origins: {}", configuration.getAllowedOrigins());
         return source;
     }
 
